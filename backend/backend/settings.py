@@ -125,8 +125,15 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
 STATIC_URL = '/static/'
+MEDIA_URL = '/images/'  # For render the images
 
+STATICFILES_DIRS = [
+    BASE_DIR / 'static'
+]
 
+MEDIA_ROOT = 'static/images'
+
+#-# CORS Header Start #-#
 CORS_ALLOW_ALL_ORIGINS = True
 
 # CORS_ALLOWED_ORIGINS = [
@@ -135,6 +142,7 @@ CORS_ALLOW_ALL_ORIGINS = True
 #     "http://localhost:3000",  # React
 #     "http://127.0.0.1:9000"
 # ]
+#-# CORS Header End #-#
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
