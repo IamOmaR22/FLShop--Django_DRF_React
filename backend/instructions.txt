@@ -1,0 +1,70 @@
+====================================================
+|||  React Start  |||
+====================================================
+
+
+
+====================================================
+|||  Django Start  |||
+====================================================
+
+
+
+====================================================
+|||  Cross-Origin Resource Sharing (CORS) Start  |||
+====================================================
+
+Cross-Origin Resource Sharing (CORS) is an HTTP-header based mechanism that allows a server to indicate any other origins (domain, scheme, or port) than its own 
+from which a browser should permit loading of resources. https://pypi.org/project/django-cors-headers/
+
+Uses:
+
+$ pip install django-cors-headers
+
+/// File: settings.py
+
+INSTALLED_APPS = [
+    ...
+    'corsheaders',
+    ...
+]
+
+MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
+    ...
+]
+
+
+CORS_ALLOW_ALL_ORIGINS = True   # This will allow all of them.
+
+Or
+
+CORS_ALLOWED_ORIGINS = [        # This will allow what you wanted to allow.
+    "https://example.com",
+    "https://sub.example.com",
+    "http://localhost:3000",  # React
+    "http://127.0.0.1:9000"
+]
+
+==================================================
+|||  Cross-Origin Resource Sharing (CORS) End  |||
+==================================================
+
+
+
+==================================
+|||  Add a Proxy Server Start  |||
+==================================
+
+/// File: package.json
+
+{
+  "name": "frontend",
+  "proxy": "http://127.0.0.1:8000",  # New Line
+  .....................
+  },
+
+
+================================
+|||  Add a Proxy Server End  |||
+================================
