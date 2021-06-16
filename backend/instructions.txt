@@ -68,3 +68,63 @@ CORS_ALLOWED_ORIGINS = [        # This will allow what you wanted to allow.
 ================================
 |||  Add a Proxy Server End  |||
 ================================
+
+
+
+==================================
+|||  Create Redux Store Start  |||
+==================================
+
+Install Extension On Chrome - Redux DevTools
+
+$ npm install redux react-redux redux-thunk redux-devtools-extension
+
+Then create a file called store.js within src folder.
+
+Then import this into Index.js and also Import the Provider.
+
+Then you can see the Redux store on browser. 
+
+/// File: store.js
+import { createStore, combineReducers, applyMiddleware } from 'redux'
+import thunk from 'redux-thunk';
+import { composeWithDevTools } from 'redux-devtools-extension'
+
+const reducer = combineReducers({})
+
+const initialState = {}  // Empty Object
+
+const middleware = [thunk]
+
+const store = createStore(
+    reducer, 
+    initialState,
+    composeWithDevTools(applyMiddleware(...middleware))
+)
+
+export default store
+
+
+/// File: Index.js
+
+import { Provider } from 'react-redux';
+import store from './store';
+
+ReactDOM.render(
+  <Provider store={store}>
+    <App />
+  </Provider>,
+  ....................
+);
+
+
+Create constants folder within crc folder then create productConstants.js into constants folder. Then import this to productReducers.js. To avoid the string value in productReducers.
+
+Create actions folder within crc folder then create productActions.js into actions folder. Import this actions to the HomeScreen.js.
+
+
+Actions, Constants, Reducers
+
+================================        
+|||  Create Redux Store End  |||
+================================
