@@ -1,12 +1,50 @@
-====================================================
-|||  React Start  |||
-====================================================
+===========================
+|||  React Setup Start  |||
+===========================
+
+Create React Application:
+    $ npx create-react-app frontend  
+    $ cd frontend
+    $ npm start
+
+Remove Extra Files From src Folder:
+    setupTests.js
+    App.css
+    App.test.js
+
+Remove Unnecessary Code From App.js. Remove code from index.css, Because i want to customize my styling.
+
+=========================
+|||  React Setup End  |||
+=========================
+
+
+=====================================
+|||  React-Bootstrap Setup Start  |||
+=====================================
+
+Go to https://bootswatch.com/ to download css File from Theme. 
+Download ==> bootstrap.min.css    --  Automatically it gives us access to different styling that bootstrap give us access to.
+
+After Downloading bootstrap.min.css, Put bootstrap.min.css File into src Folder. Then import this into index.js file.
+/// File: src/index.js
+import './bootstrap.min.css'
+
+Installing React Bootstrap:
+    $ npm install react-bootstrap
+
+===================================
+|||  React-Bootstrap Setup End  |||
+===================================
 
 
 
-====================================================
-|||  Django Start  |||
-====================================================
+============================
+|||  Django Setup Start  |||
+============================
+==========================
+|||  Django Setup End  |||
+==========================
 
 
 
@@ -75,24 +113,21 @@ CORS_ALLOWED_ORIGINS = [        # This will allow what you wanted to allow.
 |||  Create Redux Store Start  |||
 ==================================
 
-Install Extension On Chrome - Redux DevTools
+Step - 1: Install Extension On Chrome - Redux DevTools
 
 $ npm install redux react-redux redux-thunk redux-devtools-extension
 
-Then create a file called store.js within src folder.
-
-Then import this into Index.js and also Import the Provider.
-
-Then you can see the Redux store on browser. 
-
-/// File: store.js
+Step - 2: Then create a file called store.js within src folder.
+/// File: src/store.js
 import { createStore, combineReducers, applyMiddleware } from 'redux'
 import thunk from 'redux-thunk';
 import { composeWithDevTools } from 'redux-devtools-extension'
 
-const reducer = combineReducers({})
+const reducer = combineReducers({
+    ..................,
+})
 
-const initialState = {}  // Empty Object
+const initialState = {}
 
 const middleware = [thunk]
 
@@ -105,8 +140,8 @@ const store = createStore(
 export default store
 
 
-/// File: Index.js
-
+Step - 3: Then import store into Index.js and also Import the Provider.
+/// File: src/index.js
 import { Provider } from 'react-redux';
 import store from './store';
 
@@ -114,17 +149,233 @@ ReactDOM.render(
   <Provider store={store}>
     <App />
   </Provider>,
-  ....................
+  .............
 );
 
-
-Create constants folder within crc folder then create productConstants.js into constants folder. Then import this to productReducers.js. To avoid the string value in productReducers.
-
-Create actions folder within crc folder then create productActions.js into actions folder. Import this actions to the HomeScreen.js.
-
-
-Actions, Constants, Reducers
+*** After that you can see the Redux store on browser. 
 
 ================================        
 |||  Create Redux Store End  |||
 ================================
+
+
+
+====================================================
+|||  Product Constants, Reducers, Actions Start  |||
+====================================================
+
+Step - 1: Create constants folder within crc folder then create productConstants.js into constants folder. Then import this to productReducers.js. To avoid the string 
+value in productReducers.
+/// File: constants/productConstants.js
+export const PRODUCT_LIST_REQUEST = 'PRODUCT_LIST_REQUEST'
+export const PRODUCT_LIST_SUCCESS = 'PRODUCT_LIST_SUCCESS'
+export const PRODUCT_LIST_FAIL = 'PRODUCT_LIST_FAIL'
+
+
+
+Step - 2: Import constants and Create some reducers.
+/// File: constants/productReducers.js
+import { 
+    PRODUCT_LIST_REQUEST,
+    PRODUCT_LIST_SUCCESS,
+    PRODUCT_LIST_FAIL,
+ } from "../constants/productConstants"
+
+export const productListReducer = (state = { products: [] }, action) => {
+    switch (action.type) {
+        case PRODUCT_LIST_REQUEST:
+            return { loading: true, products: [] }
+
+        case PRODUCT_LIST_SUCCESS:
+            return { loading: false, products: action.payload }
+
+        case PRODUCT_LIST_FAIL:
+            return { loading: false, error: action.payload }
+    
+        default:
+            return state
+    }
+}
+
+
+Step - 3: Now Register productListReducer to our Store ==> store.js.
+/// File: src/store.js
+import { productListReducer } from './reducers/productReducers';
+
+const reducer = combineReducers({
+    productList: productListReducer,
+})
+
+
+Step - 4: Create actions folder within crc folder then create productActions.js into actions folder. Import this actions to the HomeScreen.js.
+/// File: actions/productActions.js
+import axios from "axios"
+
+import { 
+    PRODUCT_LIST_REQUEST,
+    PRODUCT_LIST_SUCCESS,
+    PRODUCT_LIST_FAIL,
+ } from "../constants/productConstants"
+
+export const listProducts = () => async (dispatch) => {
+    try {
+        dispatch({ type: PRODUCT_LIST_REQUEST })
+        
+        const { data } = await axios.get('/api/products/')
+        
+        dispatch({
+            type: PRODUCT_LIST_SUCCESS,
+            payload: data
+        })
+
+    } catch (error) {
+        dispatch({
+            type: PRODUCT_LIST_FAIL,
+            payload: error.response && error.response.data.message
+            ? error.response.data.message
+            : error.message,
+        })
+    }
+}
+
+
+Step - 5: Now add listProducts to our Components as screens folder ==> HomeScreen.js.
+/// File: screens/HomeScreen.js
+import React, { useState, useEffect } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { listProducts } from '../actions/productActions'
+
+function HomeScreen() {
+    const dispatch = useDispatch()
+    const productList = useSelector(state => state.productList)
+    const { error, loading, products } = productList
+
+    useEffect(() => {
+
+        dispatch(listProducts())
+
+    }, [dispatch])
+
+    return (
+        ..................
+    )
+}
+
+export default HomeScreen
+
+==================================================
+|||  Product Constants, Reducers, Actions End  |||
+==================================================
+
+
+
+
+==================================================
+|||  Product Details Reducer and Action Start  |||
+==================================================
+
+Step - 1: Make some Constants in constants folder.
+/// File: constants/productConstants.js
+export const PRODUCT_DETAILS_REQUEST = 'PRODUCT_DETAILS_REQUEST'
+export const PRODUCT_DETAILS_SUCCESS = 'PRODUCT_DETAILS_SUCCESS'
+export const PRODUCT_DETAILS_FAIL = 'PRODUCT_DETAILS_FAIL'
+
+
+Step - 2: Update and Create some Reducers in reducers folder.
+/// File: constants/productReducers.js
+import { 
+    .........................,
+
+    PRODUCT_DETAILS_REQUEST,
+    PRODUCT_DETAILS_SUCCESS,
+    PRODUCT_DETAILS_FAIL,
+ } from "../constants/productConstants"
+
+export const productDetailsReducer = (state = { product: { reviews: [] } }, action) => {
+    switch (action.type) {
+        case PRODUCT_DETAILS_REQUEST:
+            return { loading: true, ...state }
+
+        case PRODUCT_DETAILS_SUCCESS:
+            return { loading: false, product: action.payload }
+
+        case PRODUCT_DETAILS_FAIL:
+            return { loading: false, error: action.payload }
+    
+        default:
+            return state
+    }
+}
+
+
+Step - 3: Now Register productDetailsReducer to our Store ==> store.js.
+/// File: src/store.js
+import { ......., productDetailsReducer } from './reducers/productReducers';
+
+const reducer = combineReducers({
+    ..........................,
+    productDetails: productDetailsReducer,
+})
+
+Step - 4: Create an Actions in actions folder. We want to update that states and then call it within our component here.
+/// File: actions/productActions.js
+import axios from "axios"
+
+import { 
+    ...............,
+
+    PRODUCT_DETAILS_REQUEST,
+    PRODUCT_DETAILS_SUCCESS,
+    PRODUCT_DETAILS_FAIL,
+ } from "../constants/productConstants"
+
+
+export const listProductDetails = (id) => async (dispatch) => {
+    try {
+        dispatch({ type: PRODUCT_DETAILS_REQUEST })
+        
+        const { data } = await axios.get(`/api/products/${id}`)
+        
+        dispatch({
+            type: PRODUCT_DETAILS_SUCCESS,
+            payload: data
+        })
+
+    } catch (error) {
+        dispatch({
+            type: PRODUCT_DETAILS_FAIL,
+            payload: error.response && error.response.data.message
+            ? error.response.data.message
+            : error.message,
+        })
+    }
+}
+
+
+Step - 5: Now add listProductDetails to our Components as screens folder ==> ProductScreen.js.
+/// File: screens/ProductScreen.js
+import React, { useState, useEffect } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { listProductDetails } from '../actions/productActions'
+
+function ProductScreen({ match }) {
+    const dispatch = useDispatch()
+    const productDetails = useSelector(state => state.productDetails)  // productDetails from Redux Store ==> store.js
+    const { loading, error, product } = productDetails  // Destructure this to get the data.
+
+    useEffect(() => {
+
+        dispatch(listProductDetails(match.params.id))
+
+    }, [dispatch, match])
+
+    return (
+        .............
+    )
+}
+
+export default ProductScreen
+
+================================================
+|||  Product Details Reducer and Action End  |||
+================================================
