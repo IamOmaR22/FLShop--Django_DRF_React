@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { Row, Col, Image, ListGroup, Button, Card } from 'react-bootstrap';
+import { Row, Col, Image, ListGroup, Button, Card, Form } from 'react-bootstrap';
 import Rating from '../components/Rating';
 // import products from '../products';   // Static data
 
@@ -12,12 +12,15 @@ import { listProductDetails } from '../actions/productActions'
 import Loader from '../components/Loader'
 import Message from '../components/Message'
 
-function ProductScreen({ match }) {
+// history from props. We are destructuring our props now. history for redirect after onClick  --  addToCartHandler.
+function ProductScreen({ match, history }) {
     // const product = products.find((p) => p._id == match.params.id)   // Static data
     // const [product, setProduct] = useState([])
     const dispatch = useDispatch()
     const productDetails = useSelector(state => state.productDetails)  // productDetails from Redux Store ==> store.js
     const { loading, error, product } = productDetails  // Destructure this to get the data.
+
+    const [qty, setQty] = useState(1)  // Set our quantity. Quantity is going to be a state within our component. No need Redux for that because it's small part of our state. Set 1, because we always want start with 1 and we can change it.
 
     useEffect(() => {
         // async function fetchProduct(){
@@ -30,6 +33,11 @@ function ProductScreen({ match }) {
         dispatch(listProductDetails(match.params.id))
 
     }, [dispatch, match])
+
+    const addToCartHandler = () => {
+        // console.log('Add To Cart :', match.params.id)
+        history.push(`/cart/${match.params.id}?qty=${qty}`)  // Redirect to our cart page. history from props.
+    }
 
     return (
         <div>
@@ -86,8 +94,28 @@ function ProductScreen({ match }) {
                                         </Row>
                                     </ListGroup.Item>
 
+                                {/* Check the condition. If product in stock then show it. If not in stock then don't show it. */}
+                                    { product.countInStock > 0 && (
+                                        <ListGroup.Item>
+                                            <Row>
+                                                <Col>Qty</Col>
+                                                <Col xs='auto' className='my-1'>
+                                                    <Form.Control as='select' value={qty} onChange={(e) => setQty(e.target.value)}>  {/* By default qty is 1. setQty() is an update method to update qty. get value from what we selected. */}
+                                                        {
+                                                            [...Array(product.countInStock).keys()].map((x) => (
+                                                                <option key={x + 1} value={x + 1}>
+                                                                    { x + 1 }
+                                                                </option>
+                                                            ))
+                                                        }
+                                                    </Form.Control>
+                                                </Col>
+                                            </Row>
+                                        </ListGroup.Item>
+                                    )}
+
                                     <ListGroup.Item>
-                                        <Button className='btn-block' disabled={product.countInStock == 0} type='button'>Add to Cart</Button>
+                                        <Button onClick={addToCartHandler} className='btn-block' disabled={product.countInStock == 0} type='button'>Add to Cart</Button>
                                     </ListGroup.Item>
                                 </ListGroup>
                             </Card>
