@@ -424,7 +424,8 @@ SIMPLE_JWT = {
     'UPDATE_LAST_LOGIN': False,
 
     'ALGORITHM': 'HS256',
-    # 'SIGNING_KEY': settings.SECRET_KEY,
+    # 
+    'SIGNING_KEY': settings.SECRET_KEY,
     'VERIFYING_KEY': None,
     'AUDIENCE': None,
     'ISSUER': None,
@@ -446,6 +447,145 @@ SIMPLE_JWT = {
 }
 
 
+## -- ## JWT Customization For User Information ## -- ##
+
+/// File: base/views.py
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt.views import TokenObtainPairView
+
+class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+
+        # Add custom claims
+        token['username'] = user.username
+        token['message'] = 'Hello World'
+        # ...
+
+        return token
+
+class MyTokenObtainPairView(TokenObtainPairView):
+    serializer_class = MyTokenObtainPairSerializer
+
+/// File: base/urls.py
+from . import views
+# from rest_framework_simplejwt.views import (
+#     TokenObtainPairView,
+# )
+
+urlpatterns = [
+    path('users/login/', views.MyTokenObtainPairView.as_view(), name='token_obtain_pair'),
+    # path('users/login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    ..............................,
+]
+
+
+/// File: base/views.py   --- Do this when you want to see the user info from frontend(DRF browser page)
+class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
+
+    def validate(self, attrs):
+        data = super().validate(attrs)
+
+        data['username'] = self.user.username
+        data['email'] = self.user.email
+    
+        return data
+
 ==================================
 |||  JWT - JSON Web Token End  |||
 ==================================
+
+
+
+
+===============================
+|||  User Serializer Start  |||
+===============================
+
+/// File: base/serializers.py
+from django.contrib.auth.models import User
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'email']
+
+
+/// File: base/views.py
+from . serializers import .........., UserSerializer
+
+@api_view(['GET'])
+def getUserProfile(request):
+    user = request.user
+    serializer = UserSerializer(user, many=False)  # Single use that's why False
+    return Response(serializer.data)
+
+
+/// File: base/urls.py
+urlpatterns = [
+    .......................,
+    path('users/profile/', views.getUserProfile, name='users-profile'),
+    .......................,
+]
+
+Then Go to Postman add Headers for Authorization.
+
+## -- ## -- ## Customize the User model ## -- ## -- ##
+/// File: base/serializers.py
+class UserSerializer(serializers.ModelSerializer):
+    name = serializers.SerializerMethodField(read_only=True)
+    _id = serializers.SerializerMethodField(read_only=True)
+    isAdmin = serializers.SerializerMethodField(read_only=True)
+    class Meta:
+        model = User
+        fields = ['id', '_id', 'username', 'email', 'name', 'isAdmin']
+    
+    def get__id(self, obj):  # Double underscore id because my id already contains underscore.
+        return obj.id
+
+    def get_isAdmin(self, obj):
+        return obj.is_staff
+
+    def get_name(self, obj):  # self is the serializer and obj is the user.
+        name = obj.first_name
+        if name == '':  # When user has no name.
+            name = obj.email
+
+        return name
+
+
+## -- ## -- ## Added Another Token For User ## -- ## -- ##
+/// File: base/serializers.py
+from rest_framework_simplejwt.tokens import RefreshToken
+
+class UserSerializerWithToken(UserSerializer):  # Extends the UserSerializer
+    token = serializers.SerializerMethodField(read_only=True)
+    class Meta:
+        model = User
+        fields = ['id', '_id', 'username', 'email', 'name', 'isAdmin', 'token']
+
+    def get_token(self, obj):
+        token = RefreshToken.for_user(obj)
+        return str(token.access_token)
+
+/// File: base/views.py
+from . serializers import .............., UserSerializerWithToken
+
+class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
+
+    def validate(self, attrs):
+        data = super().validate(attrs)
+
+        serializer = UserSerializerWithToken(self.user).data
+
+        for k, v in serializer.items():  # key, value
+            data[k] = v
+    
+        return data
+
+*** It will give a token. Previous token and this token both hold the same data.
+
+=============================
+|||  User Serializer End  |||
+=============================
