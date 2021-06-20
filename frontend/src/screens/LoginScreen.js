@@ -20,6 +20,7 @@ function LoginScreen({ location, history }) {
     const userLogin = useSelector(state => state.userLogin)  // userLogin from store.js
     const { error, loading, userInfo } = userLogin   // Pull out error, loading, userInfo from userReducers.js
 
+    // If User Is Logged In then Redirect Them.
     useEffect(() => {
         if(userInfo) {
             history.push(redirect)
@@ -38,7 +39,7 @@ function LoginScreen({ location, history }) {
 
             { error && <Message variant='danger'>{error}</Message> }
             { loading && <Loader /> }
-            
+
             <Form onSubmit={submitHandler}>
                 <Form.Group controlId='email'>
                     <Form.Label>Email Address</Form.Label>
