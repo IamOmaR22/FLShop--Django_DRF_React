@@ -379,3 +379,73 @@ export default ProductScreen
 ================================================
 |||  Product Details Reducer and Action End  |||
 ================================================
+
+
+
+====================================
+|||  JWT - JSON Web Token Start  |||
+====================================
+
+Step - 1: Installation
+
+    $ pip install djangorestframework-simplejwt
+
+Step - 2: Write this under the INSTALLED_APPS = []
+/// File: settings.py
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    )
+}
+
+Step - 3: In root urls, I have put path('api/', include('base.urls')),
+/// File: base/urls.py
+
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+)
+
+urlpatterns = [
+    path('users/login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),  # This will be http://127.0.0.1:8000/api/users/login/
+    ......................,
+]
+
+
+Step - 4: Some of Simple JWT’s behavior can be customized through settings variables in settings.py: Put it under REST_FRAMEWORK = {}
+/// File: settings.py
+from datetime import timedelta
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'ROTATE_REFRESH_TOKENS': False,
+    'BLACKLIST_AFTER_ROTATION': True,
+    'UPDATE_LAST_LOGIN': False,
+
+    'ALGORITHM': 'HS256',
+    # 'SIGNING_KEY': settings.SECRET_KEY,
+    'VERIFYING_KEY': None,
+    'AUDIENCE': None,
+    'ISSUER': None,
+
+    'AUTH_HEADER_TYPES': ('Bearer',),
+    'AUTH_HEADER_NAME': 'HTTP_AUTHORIZATION',
+    'USER_ID_FIELD': 'id',
+    'USER_ID_CLAIM': 'user_id',
+    'USER_AUTHENTICATION_RULE': 'rest_framework_simplejwt.authentication.default_user_authentication_rule',
+
+    'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
+    'TOKEN_TYPE_CLAIM': 'token_type',
+
+    'JTI_CLAIM': 'jti',
+
+    'SLIDING_TOKEN_REFRESH_EXP_CLAIM': 'refresh_exp',
+    'SLIDING_TOKEN_LIFETIME': timedelta(minutes=5),
+    'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
+}
+
+
+==================================
+|||  JWT - JSON Web Token End  |||
+==================================
