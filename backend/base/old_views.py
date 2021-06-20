@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User
+from django.core.checks import messages
 from django.shortcuts import render
 from django.http import JsonResponse
 
@@ -16,6 +17,10 @@ from . serializers import ProductSerializer, UserSerializer, UserSerializerWithT
 # JWT
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
+
+
+from django.contrib.auth.hashers import make_password   # For hash password.
+from rest_framework import status  # For custom message.
 
 # from backend.base import serializers
 
@@ -56,6 +61,25 @@ def getRoutes(request):
         '/api/products/<update>/<id>/',
     ]
     return Response(routes)
+
+
+@api_view(['POST'])
+def registerUser(request):
+    data = request.data
+    # print('DATA :', data)
+
+    try:
+        user = User.objects.create(
+            first_name = data['name'],
+            username = data['email'],
+            email = data['email'],
+            password = make_password(data['password'])
+        )
+        serializer = UserSerializerWithToken(user, many=False)
+        return Response(serializer.data)
+    except:
+        message = {'detail': 'User with this email already exists'}
+        return Response(message, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['GET'])

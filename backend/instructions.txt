@@ -589,3 +589,46 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
 =============================
 |||  User Serializer End  |||
 =============================
+
+
+============================================
+|||  Signals and Login With Email Start  |||
+============================================
+
+Step - 1: Create a file called signals.py within base app.
+
+/// File: base/signals.py
+from django.db.models.signals import pre_save
+from django.contrib.auth.models import User
+
+
+def updateUser(sender, instance, **kwargs):
+    print('Signal Triggered')
+
+pre_save.connect(updateUser, sender=User)
+
+/// File: base/apps.py
+class BaseConfig(AppConfig):
+    ..................
+
+    def ready(self):
+        import base.signals   # Must register app like this in settings.py 'base.apps.BaseConfig',
+
+*** After doing this, Let's save one created user from admin panel. You can see the Signal Triggered on Console.
+
+
+/// File: base/signals.py
+def updateUser(sender, instance, **kwargs):
+    # print('Signal Triggered')
+    user = instance
+    if user.email != '':
+        user.username = user.email
+
+pre_save.connect(updateUser, sender=User)
+
+==========================================
+|||  Signals and Login With Email End  |||
+==========================================
+
+I have shifted all the urls to base=>urls(Folder)
+I have shifted all the views to base=>views(Folder)
