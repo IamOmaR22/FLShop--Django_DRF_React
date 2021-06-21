@@ -52,6 +52,27 @@ def registerUser(request):
         return Response(message, status=status.HTTP_400_BAD_REQUEST)
 
 
+# To Update The User Profile
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def updateUserProfile(request):
+    user = request.user
+    serializer = UserSerializerWithToken(user, many=False)  # Single use that's why False
+    
+    data = request.data  # Pull Out The Data
+    user.first_name = data['name']
+    user.username = data['email']
+    user.email = data['email']
+
+    if data['password'] != '':   # If we don't give a password then it will remain same.
+        user.password = make_password(data['password'])
+
+    user.save()
+
+    return Response(serializer.data)
+
+
+# To See The User Profile
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def getUserProfile(request):
@@ -60,6 +81,7 @@ def getUserProfile(request):
     return Response(serializer.data)
 
 
+# To See All The Users
 @api_view(['GET'])
 @permission_classes([IsAdminUser])
 def getUsers(request):
