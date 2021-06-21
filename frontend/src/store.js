@@ -24,8 +24,15 @@ const cartItemsFromStorage = localStorage.getItem('cartItems') ?
 const userInfoFromStorage = localStorage.getItem('userInfo') ?
         JSON.parse(localStorage.getItem('userInfo')) : null  // If can't find a user then the value is null.
 
+const shippingAddressFromStorage = localStorage.getItem('shippingAddress') ?
+    JSON.parse(localStorage.getItem('shippingAddress')) : {}  // {} means empty object
+
+
 const initialState = {
-    cart: { cartItems: cartItemsFromStorage },
+    cart: {
+        cartItems: cartItemsFromStorage,
+        shippingAddress: shippingAddressFromStorage
+    },
     userLogin: { userInfo: userInfoFromStorage }
 }
 

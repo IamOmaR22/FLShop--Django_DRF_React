@@ -3,6 +3,9 @@ import axios from "axios"
 import {
     CART_ADD_ITEM,
     CART_REMOVE_ITEM,
+
+    CART_SAVE_SHIPPING_ADDRESS,
+
 } from "../constants/cartConstants";
 
 export const addToCart = (id, qty) => async (dispatch, getState) => {
@@ -34,4 +37,14 @@ export const removeFromCart = (id) => (dispatch, getState) => {
 
     localStorage.setItem('cartItems', JSON.stringify(getState().cart.cartItems))  // Update the local storage when remove an item.
 
+}
+
+
+export const saveShippingAddress = (data) => (dispatch, getState) => {  // Pass data, which is our form data.
+    dispatch({
+        type: CART_SAVE_SHIPPING_ADDRESS,
+        payload: data,
+    })
+
+    localStorage.setItem('shippingAddress', JSON.stringify(data))
 }
