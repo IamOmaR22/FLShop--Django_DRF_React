@@ -6,6 +6,8 @@ import {
 
     CART_SAVE_PAYMENT_METHOD,
 
+    CART_CLEAR_ITEMS,
+
 } from "../constants/cartConstants";
 
 
@@ -28,23 +30,29 @@ export const cartReducer = (state = { cartItems: [], shippingAddress: {} }, acti
                 }
             }
 
-            case CART_REMOVE_ITEM:
-                return {
-                    ...state,
-                    cartItems: state.cartItems.filter(x => x.product !== action.payload)  // action.payload is the id of the product.
-                }
+        case CART_REMOVE_ITEM:
+            return {
+                ...state,
+                cartItems: state.cartItems.filter(x => x.product !== action.payload)  // action.payload is the id of the product.
+            }
 
-            case CART_SAVE_SHIPPING_ADDRESS:
-                return {
-                    ...state,
-                    shippingAddress:  action.payload  // payload is going to be the form data.
-                }
-            
-                case CART_SAVE_PAYMENT_METHOD:
-                return {
-                    ...state,
-                    paymentMethod:  action.payload
-                }
+        case CART_SAVE_SHIPPING_ADDRESS:
+            return {
+                ...state,
+                shippingAddress:  action.payload  // payload is going to be the form data.
+            }
+        
+        case CART_SAVE_PAYMENT_METHOD:
+        return {
+            ...state,
+            paymentMethod:  action.payload
+        }
+
+        case CART_CLEAR_ITEMS:
+        return {
+            ...state,
+            cartItems: []  // Empty array
+        }
     
         default:
             return state
