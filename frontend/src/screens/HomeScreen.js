@@ -11,12 +11,14 @@ import { listProducts } from '../actions/productActions'
 import Loader from '../components/Loader'
 import Message from '../components/Message'
 
-function HomeScreen() {
+function HomeScreen({history}) {
     // const [products, setProducts] = useState([])
     const dispatch = useDispatch()
     const productList = useSelector(state => state.productList)
     const { error, loading, products } = productList
 
+    let keyword = history.location.search
+    // console.log(keyword)
     useEffect(() => {
         // console.log('Use Effect Triggered');
         // async function fetchProducts(){
@@ -25,9 +27,9 @@ function HomeScreen() {
         // }
 
         // fetchProducts()
-        dispatch(listProducts())
+        dispatch(listProducts(keyword))
 
-    }, [dispatch])
+    }, [dispatch, keyword])
 
     return (
         <div>

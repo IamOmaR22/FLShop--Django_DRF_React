@@ -13,7 +13,12 @@ from rest_framework import status  # For custom message.
 
 @api_view(['GET'])
 def getProducts(request):
-    products = Product.objects.all()
+    query = request.query_params.get('keyword')  # For Search
+    # print('query:', query) # String value: actual value
+    if query == None:
+        query = ''
+
+    products = Product.objects.filter(name__icontains=query)
     serializer = ProductSerializer(products, many=True)   # If single product then set False.
     return Response(serializer.data)
 
