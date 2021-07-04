@@ -13,6 +13,9 @@ import Message from '../components/Message'
 
 import Paginate from '../components/Paginate'
 
+import ProductCarousel from '../components/ProductCarousel'
+
+
 function HomeScreen({history}) {
     // const [products, setProducts] = useState([])
     const dispatch = useDispatch()
@@ -35,6 +38,7 @@ function HomeScreen({history}) {
 
     return (
         <div>
+            { !keyword && <ProductCarousel /> }
             <h1>Latest Products</h1>
 
             {
