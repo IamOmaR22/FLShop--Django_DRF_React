@@ -632,3 +632,55 @@ pre_save.connect(updateUser, sender=User)
 
 I have shifted all the urls to base=>urls(Folder)
 I have shifted all the views to base=>views(Folder)
+
+
+
+=======================================================
+|||  Merging React Files With Django Project Start  |||
+=======================================================
+
+### Step - 1: Move frontend folder to backend folder  ###
+--- Cut frontend folder and paste it inside backend folder
+
+### Step - 2: Get all Django files or React files and Turn them into static assets ###
+--- cd frontend
+--- npm run build
+
+My entire project now sits in the file called index.html -- frontend/build/index.html
+
+### Step - 3: Point Django Project To index.html ###
+--- Go to settings.py and urls.py
+/// File: settings.py
+TEMPLATES = [
+    {
+        .....................,
+        'DIRS': [
+            os.path.join(BASE_DIR, 'frontend/build')
+        ],
+        .....................,
+    },
+]
+
+/// File: urls.py
+from django.views.generic import TemplateView
+
+urlpatterns = [
+    ..........................,
+    path('', TemplateView.as_view(template_name='index.html')),  # This path will render the React project.
+    ..........................,
+]
+
+/// File: settings.py
+STATICFILES_DIRS = [
+    ................,
+    BASE_DIR / 'frontend/build/static'
+]
+
+--- cd backend
+--- python manage.py runserver
+
+Now you can see the full project on http://127.0.0.1:8000/
+
+=====================================================
+|||  Merging React Files With Django Project End  |||
+=====================================================
