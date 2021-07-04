@@ -10,17 +10,37 @@ from base.serializers import ProductSerializer
 
 from rest_framework import status  # For custom message.
 
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+
 
 @api_view(['GET'])
 def getProducts(request):
-    query = request.query_params.get('keyword')  # For Search
+    # Search
+    query = request.query_params.get('keyword')
     # print('query:', query) # String value: actual value
     if query == None:
         query = ''
 
     products = Product.objects.filter(name__icontains=query)
+
+    # Pagination
+    page = request.query_params.get('page')
+    paginator = Paginator(products, 5)  # Number of products we want to return
+    
+    try:
+        products = paginator.page(page)
+    except PageNotAnInteger:
+        products = paginator.page(1) # First page
+    except EmptyPage:
+        products = paginator.page(paginator.num_pages)  # Last page (When don't have products)
+
+    if page == None:
+        page = 1
+
+    page = int(page)
+
     serializer = ProductSerializer(products, many=True)   # If single product then set False.
-    return Response(serializer.data)
+    return Response({'products': serializer.data, 'page': page, 'pages': paginator.num_pages})
 
 
 @api_view(['GET'])
